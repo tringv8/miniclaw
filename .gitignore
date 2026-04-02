@@ -1,12 +1,10 @@
 .worktrees/
 .claude/
-workspace/
 credentials.json
 token.json
 *_token.json
 *_credentials.json
 node_modules/
-web/backend/
 .assets
 .docs
 .env
@@ -27,7 +25,18 @@ venv/
 __pycache__/
 poetry.lock
 .pytest_cache/
-botpy.log
-nano.*.save
+*.log
+mini.*.save
 .DS_Store
 uv.lock
+
+# Python bundled interpreter
+web/backend/.python/
+
+# Pytest temp files
+.pytest-temp*/
+pytest-temp-*/
+pytest-cache-files-*/
+
+# OS files
+Thumbs.db

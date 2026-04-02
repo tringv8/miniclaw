@@ -15,7 +15,7 @@ def _repo_root() -> Path:
 
 
 def _launcher_root() -> Path:
-    return _repo_root() / "web" / "frontend_python_codex"
+    return _repo_root() / "web" / "backend"
 
 
 def _ensure_import_paths() -> Path:
