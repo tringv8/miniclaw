@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Miniclaw
 
 A lightweight personal AI assistant framework that connects Claude AI to messaging platforms (Telegram, WhatsApp, Web) with tool integrations (Gmail, Google Calendar, and more).
@@ -41,6 +40,3 @@ Copy `.env.example` to `.env` and fill in:
 ## License
 
 MIT
-=======
-# Miniclaw
->>>>>>> 1f8e0449394aa0422b411563f8ec738eb0d295d5
