@@ -1,4 +1,6 @@
 .worktrees/
+.claude/
+workspace/
 credentials.json
 token.json
 *_token.json

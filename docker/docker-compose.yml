@@ -1,9 +1,11 @@
 x-common-config: &common-config
   build:
-    context: ..
-    dockerfile: docker/Dockerfile
+    context: .
+    dockerfile: Dockerfile
   volumes:
     - ~/.miniclaw:/root/.miniclaw
+  env_file:
+    - .env
 
 services:
   miniclaw-gateway:
@@ -11,8 +13,6 @@ services:
     <<: *common-config
     command: ["gateway"]
     restart: unless-stopped
-    env_file:
-      - ../.env
     ports:
       - 18790:18790
       - 18801:18801
@@ -24,7 +24,7 @@ services:
         reservations:
           cpus: '0.25'
           memory: 256M
-  
+
   miniclaw-cli:
     <<: *common-config
     profiles:
