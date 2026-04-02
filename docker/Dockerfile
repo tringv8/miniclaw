@@ -23,6 +23,9 @@ RUN uv pip install --system -e .
 # Install launcher web dependencies
 RUN uv pip install --system fastapi uvicorn[standard] python-multipart httpx
 
+# Override PyPI oauth-cli-kit with local version (has extra functions)
+ENV PYTHONPATH="/app:${PYTHONPATH}"
+
 WORKDIR /app/bridge
 RUN npm install && npm run build
 WORKDIR /app
