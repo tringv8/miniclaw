@@ -76,6 +76,7 @@ dev = [
 
 [project.scripts]
 miniclaw = "miniclaw.cli.commands:app"
+miniclaw-launcher = "miniclaw.cli.launcher:main"
 
 [build-system]
 requires = ["hatchling"]
