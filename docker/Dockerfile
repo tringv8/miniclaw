@@ -21,7 +21,7 @@ RUN git clone https://github.com/tringv8/miniclaw.git .
 RUN uv pip install --system -e .
 
 # Install launcher web dependencies
-RUN uv pip install --system -r web/frontend_python_codex/requirements.txt
+RUN uv pip install --system fastapi uvicorn[standard] python-multipart httpx
 
 WORKDIR /app/bridge
 RUN npm install && npm run build
