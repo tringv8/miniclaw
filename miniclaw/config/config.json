@@ -27,8 +27,8 @@
     "sendMaxRetries": 3,
     "telegram": {
       "enabled": true,
-      "token": "8669305188:AAEQHCizHTN77GtW5sbwd-JtUn8IL6DERyY",
-      "allowFrom": ["*"],
+      "token": "",
+      "allowFrom": [""],
       "proxy": null,
       "replyToMessage": false,
       "reactEmoji": "👀",
