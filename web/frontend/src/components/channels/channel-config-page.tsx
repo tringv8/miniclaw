@@ -10,18 +10,12 @@ import {
   patchAppConfig,
 } from "@/api/channels"
 import { getChannelDisplayName } from "@/components/channels/channel-display-name"
-import { DiscordForm } from "@/components/channels/channel-forms/discord-form"
-import { FeishuForm } from "@/components/channels/channel-forms/feishu-form"
 import { GenericForm } from "@/components/channels/channel-forms/generic-form"
-import { SlackForm } from "@/components/channels/channel-forms/slack-form"
 import { TelegramForm } from "@/components/channels/channel-forms/telegram-form"
-import { WecomForm } from "@/components/channels/channel-forms/wecom-form"
-import { WeixinForm } from "@/components/channels/channel-forms/weixin-form"
 import { PageHeader } from "@/components/page-header"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { useGateway } from "@/hooks/use-gateway"
-import { refreshGatewayState } from "@/store/gateway"
 
 interface ChannelConfigPageProps {
   channelName: string
@@ -337,7 +331,7 @@ export function ChannelConfigPage({ channelName }: ChannelConfigPageProps) {
   const docsUrl = useMemo(() => {
     if (!channel) return ""
     if (CHANNELS_WITHOUT_DOCS.has(channel.name)) return ""
-    return "https://github.com/HKUDS/nanobot/blob/main/docs/CHANNEL_PLUGIN_GUIDE.md"
+    return "https://github.com/tringv8/miniclaw/blob/main/docs/CHANNEL_PLUGIN_GUIDE.md"
   }, [channel])
 
   const channelDisplayName = useMemo(() => {
@@ -419,47 +413,7 @@ export function ChannelConfigPage({ channelName }: ChannelConfigPageProps) {
     }
   }
 
-  const handleWeixinBindSuccess = useCallback(async () => {
-    try {
-      setEnabled(true)
-      await Promise.all([loadData(true), refreshGatewayState({ force: true })])
-    } catch (e) {
-      const message =
-        e instanceof Error ? e.message : t("channels.page.saveError")
-      setServerError(message)
-      await loadData(true)
-    }
-  }, [loadData, t])
-
-  const handleWecomBindSuccess = useCallback(async () => {
-    try {
-      setEnabled(true)
-      await Promise.all([loadData(true), refreshGatewayState({ force: true })])
-    } catch (e) {
-      const message =
-        e instanceof Error ? e.message : t("channels.page.saveError")
-      setServerError(message)
-      await loadData(true)
-    }
-  }, [loadData, t])
-
-  const handleWecomEnabledChange = useCallback(
-    async (nextEnabled: boolean) => {
-      try {
-        setEnabled(nextEnabled)
-        await Promise.all([
-          loadData(true),
-          refreshGatewayState({ force: true }),
-        ])
-      } catch (e) {
-        const message =
-          e instanceof Error ? e.message : t("channels.page.saveError")
-        setServerError(message)
-        await loadData(true)
-      }
-    },
-    [loadData, t],
-  )
+  
 
   const renderForm = () => {
     if (!channel) return null
@@ -475,63 +429,7 @@ export function ChannelConfigPage({ channelName }: ChannelConfigPageProps) {
             fieldErrors={fieldErrors}
           />
         )
-      case "discord":
-        return (
-          <DiscordForm
-            config={editConfig}
-            onChange={handleChange}
-            isEdit={isEdit}
-            fieldErrors={fieldErrors}
-          />
-        )
-      case "slack":
-        return (
-          <SlackForm
-            config={editConfig}
-            onChange={handleChange}
-            isEdit={isEdit}
-            fieldErrors={fieldErrors}
-          />
-        )
-      case "feishu":
-        return (
-          <FeishuForm
-            config={editConfig}
-            onChange={handleChange}
-            isEdit={isEdit}
-            fieldErrors={fieldErrors}
-          />
-        )
-      case "weixin":
-        return (
-          <WeixinForm
-            config={editConfig}
-            onChange={handleChange}
-            isEdit={isEdit}
-            onBindSuccess={() => void handleWeixinBindSuccess()}
-          />
-        )
-      case "wecom":
-        return (
-          <>
-            <WecomForm
-              config={editConfig}
-              isEdit={isEdit}
-              onBindSuccess={() => void handleWecomBindSuccess()}
-              onEnabledChange={(nextEnabled) =>
-                void handleWecomEnabledChange(nextEnabled)
-              }
-            />
-            <GenericForm
-              config={editConfig}
-              onChange={handleChange}
-              isEdit={isEdit}
-              hiddenKeys={[...hiddenKeys, "bot_id"]}
-              requiredKeys={requiredKeys}
-              fieldErrors={fieldErrors}
-            />
-          </>
-        )
+
       default:
         return (
           <GenericForm

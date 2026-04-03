@@ -1,0 +1,1 @@
+import{n as e}from"./shim-BABylzsG.js";import{B as t,H as n,V as r}from"./index-DjKsnKK4.js";var i=e();function a(){return t({select:e=>e.location.pathname})===`/channels`?(0,i.jsx)(n,{to:`/channels/$name`,params:{name:`telegram`}}):(0,i.jsx)(r,{})}export{a as component};

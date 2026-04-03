@@ -43,7 +43,7 @@ const OBJECT_FIELDS = new Set([
   "typing",
   "placeholder",
   "allow_token_query",
-  "allow_from",
+  "allowFrom",
   "allow_origins",
   "groups",
 ])
@@ -250,16 +250,16 @@ export function GenericForm({
       })}
 
       {/* Allow From field */}
-      {config.allow_from !== undefined && !hiddenFieldSet.has("allow_from") && (
+      {config.allowFrom !== undefined && !hiddenFieldSet.has("allowFrom") && (
         <Field
           label={t("channels.field.allowFrom")}
           hint={t("channels.form.desc.allowFrom")}
         >
           <Input
-            value={asStringArray(config.allow_from).join(", ")}
+            value={asStringArray(config.allowFrom).join(", ")}
             onChange={(e) =>
               onChange(
-                "allow_from",
+                "allowFrom",
                 e.target.value
                   .split(",")
                   .map((s: string) => s.trim())
