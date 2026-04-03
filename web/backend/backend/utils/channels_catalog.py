@@ -9,9 +9,9 @@ from backend.utils.config_store import load_raw_config
 TELEGRAM_DEFAULTS: dict[str, Any] = {
     "enabled": False,
     "token": "",
-    "base_url": "https://api.telegram.org",
+    "baseUrl": "https://api.telegram.org",
     "proxy": "http://127.0.0.1:7890",
-    "allow_from": [],
+    "allowFrom": [],
     "typing": {"enabled": False},
     "placeholder": {
         "enabled": False,
@@ -21,11 +21,11 @@ TELEGRAM_DEFAULTS: dict[str, Any] = {
 
 WEB_DEFAULTS: dict[str, Any] = {
     "enabled": True,
-    "ping_interval": 30,
-    "read_timeout": 60,
-    "write_timeout": 10,
-    "max_connections": 100,
-    "allow_from": [],
+    "pingInterval": 30,
+    "readTimeout": 60,
+    "writeTimeout": 10,
+    "maxConnections": 100,
+    "allowFrom": [],
     "placeholder": {
         "enabled": False,
         "text": "Thinking...",
