@@ -291,6 +291,21 @@ def sync_workspace_templates(workspace: Path, silent: bool = False) -> list[str]
     _write(None, workspace / "memory" / "HISTORY.md")
     (workspace / "skills").mkdir(exist_ok=True)
 
+    # Sync bundled skills to workspace
+    skills_src = tpl.parent / "skills"
+    if skills_src.is_dir():
+        skills_dest = workspace / "skills"
+        for skill_dir in skills_src.iterdir():
+            if skill_dir.is_dir():
+                target = skills_dest / skill_dir.name
+                if not target.exists():
+                    target.mkdir(parents=True, exist_ok=True)
+                    for f in skill_dir.iterdir():
+                        if f.is_file():
+                            _write(f, target / f.name)
+            elif skill_dir.is_file() and not skill_dir.name.startswith("."):
+                _write(skill_dir, skills_dest / skill_dir.name)
+
     if added and not silent:
         from rich.console import Console
         for name in added:
