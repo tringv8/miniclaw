@@ -7,7 +7,7 @@ from typing import Any
 from backend.utils.config_store import load_raw_config
 
 TELEGRAM_DEFAULTS: dict[str, Any] = {
-    "enabled": False,
+    "enabled": True,
     "token": "",
     "baseUrl": "https://api.telegram.org",
     "proxy": "http://127.0.0.1:7890",

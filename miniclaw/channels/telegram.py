@@ -166,13 +166,29 @@ class _StreamBuf:
     stream_id: str | None = None
 
 
+class TypingConfig(Base):
+    """Typing indicator configuration."""
+
+    enabled: bool = False
+
+
+class PlaceholderConfig(Base):
+    """Placeholder message configuration."""
+
+    enabled: bool = False
+    text: str = "Thinking..."
+
+
 class TelegramConfig(Base):
     """Telegram channel configuration."""
 
     enabled: bool = True
     token: str = ""
     allow_from: list[str] = Field(default_factory=list)
+    base_url: str = "https://api.telegram.org"
     proxy: str | None = None
+    typing: TypingConfig = Field(default_factory=TypingConfig)
+    placeholder: PlaceholderConfig = Field(default_factory=PlaceholderConfig)
     reply_to_message: bool = False
     react_emoji: str = "👀"
     group_policy: Literal["open", "mention"] = "mention"

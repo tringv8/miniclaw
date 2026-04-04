@@ -70,8 +70,8 @@ export function TelegramForm({
         hint={t("channels.form.desc.baseUrl")}
       >
         <Input
-          value={asString(config.base_url)}
-          onChange={(e) => onChange("base_url", e.target.value)}
+          value={asString(config.baseUrl)}
+          onChange={(e) => onChange("baseUrl", e.target.value)}
           placeholder="https://api.telegram.org"
         />
       </Field>
