@@ -5,34 +5,64 @@ description: Search and summarize papers from ArXiv. Use when the user asks for 
 
 # ArXiv Watcher
 
-This skill interacts with the ArXiv API to find and summarize the latest research papers.
-
-## Capabilities
-
-- **Search**: Find papers by keyword, author, or category.
-- **Summarize**: Fetch the abstract and provide a concise summary.
-- **Save to Memory**: Automatically record summarized papers to `memory/RESEARCH_LOG.md` for long-term tracking.
-- **Deep Dive**: Use `web_fetch` on the PDF link to extract more details if requested.
+Skill này kết nối ArXiv API để tìm các bài báo khoa học theo từ khoá hoặc ID.
 
 ## Workflow
 
-1. Use `scripts/search_arxiv.sh "<query>"` to get the XML results.
-2. Parse the XML (look for `<entry>`, `<title>`, `<summary>`, and `<link title="pdf">`).
-3. Present the findings to the user.
-4. **MANDATORY**: Append the title, authors, date, and summary of any paper discussed to `memory/RESEARCH_LOG.md`. Use the format:
-   ```markdown
-   ### [YYYY-MM-DD] TITLE_OF_PAPER
-   - **Authors**: Author List
-   - **Link**: ArXiv Link
-   - **Summary**: Brief summary of the paper and its relevance.
-   ```
+### Bước 1 — Chạy script tìm kiếm
 
-## Examples
+```bash
+python scripts/search_arxiv.py "<query>" [max_results]
+```
 
-- "Busca los últimos papers sobre LLM reasoning en ArXiv."
-- "Dime de qué trata el paper con ID 2512.08769."
-- "Hazme un resumen de las novedades de hoy en ArXiv sobre agentes."
+Ví dụ:
+```bash
+python scripts/search_arxiv.py "LLM reasoning" 5
+python scripts/search_arxiv.py "2512.08769"
+```
 
-## Resources
+Script trả về cho mỗi bài:
+- `Tiêu đề`
+- `Tác giả` (tối đa 4 người)
+- `Ngày đăng`
+- `Link` (trang abstract trên arxiv.org)
+- `DOI` (nếu có)
+- `Abstract` (đầy đủ)
 
-- `scripts/search_arxiv.sh`: Direct API access script.
+### Bước 2 — Trình bày kết quả bằng tiếng Việt
+
+Với **mỗi bài tìm được**, trình bày theo đúng mẫu sau:
+
+---
+
+**[STT]. [Tiêu đề bài báo]**
+- 👤 **Tác giả**: [danh sách tác giả]
+- 📅 **Ngày đăng**: [YYYY-MM-DD]
+- 🔗 **Link**: [link arxiv]
+- 📌 **DOI**: [doi nếu có, bỏ qua nếu không có]
+- 📝 **Tóm tắt**: [Tóm tắt abstract bằng tiếng Việt, 3–5 câu, súc tích, nêu rõ: bài làm gì, vấn đề giải quyết là gì, kết quả/đóng góp chính là gì]
+
+---
+
+> ⚠️ **Quan trọng**: Phần tóm tắt PHẢI viết bằng **tiếng Việt**, không dịch nguyên văn abstract, hãy diễn đạt lại ngắn gọn và dễ hiểu.
+
+### Bước 3 — Lưu vào memory (bắt buộc)
+
+Sau khi trình bày, append vào `memory/RESEARCH_LOG.md`:
+
+```markdown
+### [YYYY-MM-DD] TIÊU ĐỀ BÀI BÁO
+- **Tác giả**: ...
+- **Link**: ...
+- **DOI**: ... (nếu có)
+- **Tóm tắt (VI)**: [bản tóm tắt tiếng Việt đã dùng ở Bước 2]
+```
+
+## Tham số script
+
+| Tham số | Mô tả | Mặc định |
+|---------|-------|---------|
+| `query` | Từ khoá hoặc ArXiv ID | *(bắt buộc)* |
+| `max_results` | Số lượng kết quả tối đa | `5` |
+
+> Script không cần thư viện ngoài — chỉ dùng Python built-in.
