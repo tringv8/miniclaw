@@ -299,10 +299,11 @@ def sync_workspace_templates(workspace: Path, silent: bool = False) -> list[str]
             if skill_dir.is_dir():
                 target = skills_dest / skill_dir.name
                 if not target.exists():
-                    target.mkdir(parents=True, exist_ok=True)
-                    for f in skill_dir.iterdir():
-                        if f.is_file():
-                            _write(f, target / f.name)
+                    # Recursively copy all files and subdirectories
+                    for src_file in skill_dir.rglob("*"):
+                        if src_file.is_file() and not src_file.name.startswith(".git"):
+                            rel = src_file.relative_to(skill_dir)
+                            _write(src_file, target / rel)
             elif skill_dir.is_file() and not skill_dir.name.startswith("."):
                 _write(skill_dir, skills_dest / skill_dir.name)
 
