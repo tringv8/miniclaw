@@ -15,7 +15,7 @@ RUN apt-get update && \
 WORKDIR /app
 
 ENV PYTHONUNBUFFERED=1
-ENV PYTHONPATH="/app:${PYTHONPATH:-}"
+ENV PYTHONPATH="/app"
 
 ARG MINICLAW_REPO=https://github.com/tringv8/Miniclaw.git
 ARG MINICLAW_REF=main
