@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import socket
 import threading
 import urllib.parse
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -81,24 +80,13 @@ def _start_local_server(
     state: str,
     on_code: Callable[[str], None] | None = None,
 ) -> tuple[_OAuthServer | None, str | None]:
+    # Bind to 0.0.0.0 so Docker port forwarding (which connects via bridge network)
+    # can reach this server. Binding to "localhost"/127.0.0.1 only accepts loopback
+    # connections, which blocks Docker's proxy from forwarding host:1455 -> container:1455.
+    # Security is maintained via the cryptographic `state` parameter validation.
     try:
-        addrinfos = socket.getaddrinfo("localhost", 1455, type=socket.SOCK_STREAM)
+        server = _OAuthServer(("0.0.0.0", 1455), state, on_code=on_code)
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        return server, None
     except OSError as exc:
-        return None, f"Failed to resolve localhost: {exc}"
-
-    last_error: OSError | None = None
-    for family, _socktype, _proto, _canonname, sockaddr in addrinfos:
-        try:
-            class _AddrOAuthServer(_OAuthServer):
-                address_family = family
-
-            server = _AddrOAuthServer(sockaddr, state, on_code=on_code)
-            threading.Thread(target=server.serve_forever, daemon=True).start()
-            return server, None
-        except OSError as exc:
-            last_error = exc
-            continue
-
-    if last_error:
-        return None, f"Local callback server failed to start: {last_error}"
-    return None, "Local callback server failed to start: unknown error"
+        return None, f"Local callback server failed to start: {exc}"
