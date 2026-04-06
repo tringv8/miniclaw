@@ -95,7 +95,7 @@ Sau khi chạy Miniclaw, vào **Channels → Telegram**:
 Miniclaw hỗ trợ tích hợp Gmail và Google Calendar thông qua Google Workspace.
 Lưu ý: để chạy được các lệnh gog, trước tiên hãy tải file .json được lấy từ [Google Console](https://console.cloud.google.com/)
 
-Các bước cấu hình trên Docker:
+Các bước cấu hình trên Docker, mở external terminal trong container miniclaw-launcher:
 
 **1. Tạo thư mục bảo mật:**
 ```cmd
