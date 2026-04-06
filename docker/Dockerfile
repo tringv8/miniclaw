@@ -39,7 +39,8 @@ RUN curl -fsSL https://github.com/steipete/gogcli/releases/download/v0.12.0/gogc
     tar -xz -C /tmp/ -f /tmp/gogcli.tar.gz && \
     { mv /tmp/gog /usr/local/bin/gog 2>/dev/null || mv /tmp/gogcli /usr/local/bin/gog; } && \
     chmod +x /usr/local/bin/gog && \
-    rm /tmp/gogcli.tar.gz
+    rm /tmp/gogcli.tar.gz && \
+    ln -s /usr/local/bin/gog /usr/local/bin/gogcli
 
 # Copy Google auth setup script
 COPY gog-setup.sh /usr/local/bin/gog-setup
