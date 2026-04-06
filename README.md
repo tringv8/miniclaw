@@ -117,7 +117,7 @@ Khi mở bot lần đầu, hãy giới thiệu bản thân để bot hiểu các
 Miniclaw hỗ trợ tích hợp Gmail và Google Calendar thông qua Google Workspace.
 Lưu ý: để chạy được các lệnh gog, trước tiên hãy tải file .json được lấy từ [Google Console](https://console.cloud.google.com/)
 
-Các bước cấu hình trên Docker, mở external terminal trong container miniclaw-launcher:
+Các bước cấu hình trên Docker, bấm vào containers, chọn miniclaw-launcher, mở **Open in external terminal**
 
 **1. Tạo thư mục bảo mật:**
 ```cmd
