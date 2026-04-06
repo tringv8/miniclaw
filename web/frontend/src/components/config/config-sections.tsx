@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { useTranslation } from "react-i18next"
 
 type UpdateCoreField = <K extends keyof CoreConfigForm>(
   key: K,
@@ -55,14 +56,15 @@ interface AgentSectionProps {
 }
 
 export function AgentSection({ form, onFieldChange }: AgentSectionProps) {
+  const { t } = useTranslation()
   return (
     <ConfigSectionCard
-      title="Agent defaults"
-      description="Core runtime settings used by miniclaw when it starts a loop."
+      title={t("pages.config.agent_title")}
+      description={t("pages.config.agent_desc")}
     >
       <Field
-        label="Workspace"
-        hint="Base workspace path used by miniclaw."
+        label={t("pages.config.workspace_label")}
+        hint={t("pages.config.workspace_label_hint")}
         layout="setting-row"
       >
         <Input
@@ -73,8 +75,8 @@ export function AgentSection({ form, onFieldChange }: AgentSectionProps) {
       </Field>
 
       <SwitchCardField
-        label="Restrict tools to workspace"
-        hint="Apply workspace sandboxing to filesystem and exec tools."
+        label={t("pages.config.restrict_tools_label")}
+        hint={t("pages.config.restrict_tools_hint")}
         layout="setting-row"
         checked={form.restrictToWorkspace}
         onCheckedChange={(checked) =>
@@ -83,16 +85,16 @@ export function AgentSection({ form, onFieldChange }: AgentSectionProps) {
       />
 
       <SwitchCardField
-        label="Split on marker"
-        hint="Split long assistant replies on channel markers when supported."
+        label={t("pages.config.split_marker_label")}
+        hint={t("pages.config.split_marker_hint")}
         layout="setting-row"
         checked={form.splitOnMarker}
         onCheckedChange={(checked) => onFieldChange("splitOnMarker", checked)}
       />
 
       <SwitchCardField
-        label="Tool feedback"
-        hint="Include concise tool-call feedback in the assistant transcript."
+        label={t("pages.config.tool_feedback_label")}
+        hint={t("pages.config.tool_feedback_hint_toggle")}
         layout="setting-row"
         checked={form.toolFeedbackEnabled}
         onCheckedChange={(checked) =>
@@ -102,8 +104,8 @@ export function AgentSection({ form, onFieldChange }: AgentSectionProps) {
 
       {form.toolFeedbackEnabled ? (
         <Field
-          label="Tool feedback max args length"
-          hint="Maximum argument preview length shown in tool feedback."
+          label={t("pages.config.tool_feedback_max_args_label")}
+          hint={t("pages.config.tool_feedback_max_args_hint")}
           layout="setting-row"
         >
           <Input
@@ -118,8 +120,8 @@ export function AgentSection({ form, onFieldChange }: AgentSectionProps) {
       ) : null}
 
       <Field
-        label="Max tokens"
-        hint="Completion token budget for a single model response."
+        label={t("pages.config.max_tokens_label")}
+        hint={t("pages.config.max_tokens_label_hint")}
         layout="setting-row"
       >
         <Input
@@ -131,8 +133,8 @@ export function AgentSection({ form, onFieldChange }: AgentSectionProps) {
       </Field>
 
       <Field
-        label="Context window tokens"
-        hint="Approximate total context budget available to the loop."
+        label={t("pages.config.context_window_label")}
+        hint={t("pages.config.context_window_label_hint")}
         layout="setting-row"
       >
         <Input
@@ -144,8 +146,8 @@ export function AgentSection({ form, onFieldChange }: AgentSectionProps) {
       </Field>
 
       <Field
-        label="Max tool iterations"
-        hint="Maximum number of tool rounds before the loop stops."
+        label={t("pages.config.max_tool_iter_label")}
+        hint={t("pages.config.max_tool_iter_hint")}
         layout="setting-row"
       >
         <Input
@@ -157,8 +159,8 @@ export function AgentSection({ form, onFieldChange }: AgentSectionProps) {
       </Field>
 
       <Field
-        label="Summarize message threshold"
-        hint="Start summarizing after this many messages in a session."
+        label={t("pages.config.summarize_threshold_label")}
+        hint={t("pages.config.summarize_threshold_label_hint")}
         layout="setting-row"
       >
         <Input
@@ -172,8 +174,8 @@ export function AgentSection({ form, onFieldChange }: AgentSectionProps) {
       </Field>
 
       <Field
-        label="Summarize token percent"
-        hint="How aggressively old context should be summarized."
+        label={t("pages.config.summarize_token_label")}
+        hint={t("pages.config.summarize_token_hint")}
         layout="setting-row"
       >
         <Input
@@ -188,8 +190,8 @@ export function AgentSection({ form, onFieldChange }: AgentSectionProps) {
       </Field>
 
       <Field
-        label="Temperature"
-        hint="Sampling temperature used by compatible providers."
+        label={t("pages.config.temperature_label")}
+        hint={t("pages.config.temperature_hint")}
         layout="setting-row"
       >
         <Input
@@ -199,8 +201,8 @@ export function AgentSection({ form, onFieldChange }: AgentSectionProps) {
       </Field>
 
       <Field
-        label="Reasoning effort"
-        hint="Optional provider hint such as low, medium, or high."
+        label={t("pages.config.reasoning_label")}
+        hint={t("pages.config.reasoning_hint")}
         layout="setting-row"
       >
         <Input
@@ -211,8 +213,8 @@ export function AgentSection({ form, onFieldChange }: AgentSectionProps) {
       </Field>
 
       <Field
-        label="Timezone"
-        hint="IANA timezone name used by cron and runtime context."
+        label={t("pages.config.timezone_label")}
+        hint={t("pages.config.timezone_hint")}
         layout="setting-row"
       >
         <Input
@@ -234,14 +236,15 @@ export function GatewaySection({
   form,
   onFieldChange,
 }: GatewaySectionProps) {
+  const { t } = useTranslation()
   return (
     <ConfigSectionCard
-      title="Gateway"
-      description="Network listener and background heartbeat settings."
+      title={t("pages.config.gateway_title")}
+      description={t("pages.config.gateway_desc")}
     >
       <Field
-        label="Gateway host"
-        hint="Interface that the miniclaw gateway binds to."
+        label={t("pages.config.gateway_host_label")}
+        hint={t("pages.config.gateway_host_hint")}
         layout="setting-row"
       >
         <Input
@@ -252,8 +255,8 @@ export function GatewaySection({
       </Field>
 
       <Field
-        label="Gateway port"
-        hint="HTTP port exposed by the miniclaw gateway."
+        label={t("pages.config.gateway_port_label")}
+        hint={t("pages.config.gateway_port_hint")}
         layout="setting-row"
       >
         <Input
@@ -266,8 +269,8 @@ export function GatewaySection({
       </Field>
 
       <SwitchCardField
-        label="Heartbeat enabled"
-        hint="Run periodic background checks using HEARTBEAT.md."
+        label={t("pages.config.heartbeat_label")}
+        hint={t("pages.config.heartbeat_hint_toggle")}
         layout="setting-row"
         checked={form.heartbeatEnabled}
         onCheckedChange={(checked) =>
@@ -278,8 +281,8 @@ export function GatewaySection({
       {form.heartbeatEnabled ? (
         <>
           <Field
-            label="Heartbeat interval seconds"
-            hint="Delay between heartbeat checks."
+            label={t("pages.config.heartbeat_interval_label")}
+            hint={t("pages.config.heartbeat_interval_label_hint")}
             layout="setting-row"
           >
             <Input
@@ -293,8 +296,8 @@ export function GatewaySection({
           </Field>
 
           <Field
-            label="Keep recent messages"
-            hint="Number of recent messages retained for heartbeat execution."
+            label={t("pages.config.heartbeat_keep_label")}
+            hint={t("pages.config.heartbeat_keep_hint")}
             layout="setting-row"
           >
             <Input
@@ -318,22 +321,23 @@ interface ExecSectionProps {
 }
 
 export function ExecSection({ form, onFieldChange }: ExecSectionProps) {
+  const { t } = useTranslation()
   return (
     <ConfigSectionCard
-      title="Exec tool"
-      description="Shell execution policy used by the exec tool."
+      title={t("pages.config.exec_title")}
+      description={t("pages.config.exec_desc")}
     >
       <SwitchCardField
-        label="Enable exec"
-        hint="Allow the agent to run shell commands."
+        label={t("pages.config.exec_enable_label")}
+        hint={t("pages.config.exec_enable_hint")}
         layout="setting-row"
         checked={form.execEnabled}
         onCheckedChange={(checked) => onFieldChange("execEnabled", checked)}
       />
 
       <Field
-        label="Exec timeout seconds"
-        hint="Maximum runtime for a single exec command."
+        label={t("pages.config.exec_timeout_label")}
+        hint={t("pages.config.exec_timeout_hint")}
         layout="setting-row"
       >
         <Input
@@ -346,8 +350,8 @@ export function ExecSection({ form, onFieldChange }: ExecSectionProps) {
       </Field>
 
       <Field
-        label="PATH append"
-        hint="Extra directories appended to PATH when exec runs."
+        label={t("pages.config.exec_path_label")}
+        hint={t("pages.config.exec_path_hint")}
         layout="setting-row"
       >
         <Textarea
@@ -371,14 +375,15 @@ export function WebSearchSection({
   form,
   onFieldChange,
 }: WebSearchSectionProps) {
+  const { t } = useTranslation()
   return (
     <ConfigSectionCard
-      title="Web tools"
-      description="Proxy and search provider settings used by web_search and web_fetch."
+      title={t("pages.config.web_title")}
+      description={t("pages.config.web_desc")}
     >
       <Field
-        label="Proxy"
-        hint="Optional HTTP or SOCKS proxy."
+        label={t("pages.config.web_proxy_label")}
+        hint={t("pages.config.web_proxy_hint")}
         layout="setting-row"
       >
         <Input
@@ -389,8 +394,8 @@ export function WebSearchSection({
       </Field>
 
       <Field
-        label="Search provider"
-        hint="One of brave, tavily, duckduckgo, searxng, or jina."
+        label={t("pages.config.web_search_provider_label")}
+        hint={t("pages.config.web_search_provider_hint")}
         layout="setting-row"
       >
         <Input
@@ -401,20 +406,20 @@ export function WebSearchSection({
       </Field>
 
       <Field
-        label="Search API key"
-        hint="Leave blank for providers that do not require an API key."
+        label={t("pages.config.web_search_api_key_label")}
+        hint={t("pages.config.web_search_api_key_hint")}
         layout="setting-row"
       >
         <Input
           value={form.webSearchApiKey}
           onChange={(e) => onFieldChange("webSearchApiKey", e.target.value)}
-          placeholder="Search API key"
+          placeholder={t("pages.config.web_search_api_key_label")}
         />
       </Field>
 
       <Field
-        label="Search base URL"
-        hint="Used for providers such as SearXNG."
+        label={t("pages.config.web_search_base_url_label")}
+        hint={t("pages.config.web_search_base_url_hint")}
         layout="setting-row"
       >
         <Input
@@ -425,8 +430,8 @@ export function WebSearchSection({
       </Field>
 
       <Field
-        label="Max results"
-        hint="Maximum number of search results returned to the agent."
+        label={t("pages.config.web_max_results_label")}
+        hint={t("pages.config.web_max_results_hint")}
         layout="setting-row"
       >
         <Input
@@ -451,14 +456,15 @@ export function LauncherSection({
   onFieldChange,
   disabled,
 }: LauncherSectionProps) {
+  const { t } = useTranslation()
   return (
     <ConfigSectionCard
-      title="Launcher access"
-      description="Settings for the FastAPI dashboard service itself."
+      title={t("pages.config.launcher_title")}
+      description={t("pages.config.launcher_desc")}
     >
       <SwitchCardField
-        label="Public access"
-        hint="Allow access from non-local network interfaces."
+        label={t("pages.config.launcher_public_label")}
+        hint={t("pages.config.launcher_public_hint")}
         layout="setting-row"
         checked={launcherForm.publicAccess}
         disabled={disabled}
@@ -466,8 +472,8 @@ export function LauncherSection({
       />
 
       <Field
-        label="Launcher port"
-        hint="Port used by the Python dashboard server."
+        label={t("pages.config.launcher_port_label")}
+        hint={t("pages.config.launcher_port_hint")}
         layout="setting-row"
       >
         <Input
@@ -481,8 +487,8 @@ export function LauncherSection({
       </Field>
 
       <Field
-        label="Allowed CIDRs"
-        hint="Optional client IP ranges that may access the dashboard."
+        label={t("pages.config.launcher_cidrs_label")}
+        hint={t("pages.config.launcher_cidrs_hint")}
         layout="setting-row"
       >
         <Textarea
@@ -510,13 +516,14 @@ export function AutoStartSection({
   disabled,
   onChange,
 }: AutoStartSectionProps) {
+  const { t } = useTranslation()
   return (
     <ConfigSectionCard
-      title="Auto start"
-      description="Launch the dashboard automatically when you sign in to the OS."
+      title={t("pages.config.autostart_title")}
+      description={t("pages.config.autostart_desc")}
     >
       <SwitchCardField
-        label="Start launcher on login"
+        label={t("pages.config.autostart_login_label")}
         hint={hint}
         layout="setting-row"
         checked={enabled}
