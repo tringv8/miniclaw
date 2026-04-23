@@ -16,6 +16,10 @@ from miniclaw.providers.base import LLMProvider, LLMResponse, ToolCallRequest
 
 DEFAULT_CODEX_URL = "https://chatgpt.com/backend-api/codex/responses"
 DEFAULT_ORIGINATOR = "miniclaw"
+_FAILURE_MESSAGE_LIMIT = 200
+_FAILURE_SUMMARY_LIMIT = 512
+_FAILURE_KEYS_LIMIT = 10
+_TRANSIENT_FAILURE_CODES = {"server_error"}
 
 
 class OpenAICodexProvider(LLMProvider):
@@ -302,6 +306,15 @@ async def _consume_sse(
             status = (event.get("response") or {}).get("status")
             finish_reason = _map_finish_reason(status)
         elif event_type in {"error", "response.failed"}:
+            summary = _summarize_failure_event(event)
+            logger.warning("Codex failure summary: {}", summary)
+            message_excerpt = summary.get("message_excerpt")
+            if _is_transient_failure_summary(summary):
+                if isinstance(message_excerpt, str) and message_excerpt:
+                    raise RuntimeError(f"Codex server error: {message_excerpt}")
+                raise RuntimeError("Codex server error")
+            if isinstance(message_excerpt, str) and message_excerpt:
+                raise RuntimeError(f"Codex response failed: {message_excerpt}")
             raise RuntimeError("Codex response failed")
 
     return content, tool_calls, finish_reason
@@ -312,6 +325,93 @@ _FINISH_REASON_MAP = {"completed": "stop", "incomplete": "length", "failed": "er
 
 def _map_finish_reason(status: str | None) -> str:
     return _FINISH_REASON_MAP.get(status or "completed", "stop")
+
+
+def _summarize_failure_event(event: dict[str, Any]) -> dict[str, Any]:
+    # Only emit a narrow whitelist so upstream payloads cannot leak prompts,
+    # headers, tokens, or tool arguments into logs.
+    error = _extract_failure_error(event)
+    response = event.get("response") if isinstance(event.get("response"), dict) else {}
+
+    summary: dict[str, Any] = {
+        "event_type": str(event.get("type") or "unknown"),
+        "payload_keys": _payload_keys(event),
+    }
+    if isinstance(error, dict):
+        if error_type := _clean_scalar(error.get("type")):
+            summary["error_type"] = error_type
+        if error_code := _clean_scalar(error.get("code")):
+            summary["error_code"] = error_code
+        if error_param := _clean_scalar(error.get("param")):
+            summary["error_param"] = error_param
+    if response_status := _clean_scalar(response.get("status")):
+        summary["response_status"] = response_status
+
+    message_excerpt = _message_excerpt(event, error, response)
+    if message_excerpt:
+        summary["message_excerpt"] = message_excerpt
+    else:
+        summary["sanitized_excerpt"] = _clip_text(
+            json.dumps(summary, ensure_ascii=False, sort_keys=True),
+            _FAILURE_SUMMARY_LIMIT,
+        )
+
+    return summary
+
+
+def _is_transient_failure_summary(summary: dict[str, Any]) -> bool:
+    for key in ("error_type", "error_code"):
+        value = summary.get(key)
+        if isinstance(value, str) and value in _TRANSIENT_FAILURE_CODES:
+            return True
+    return False
+
+
+def _extract_failure_error(event: dict[str, Any]) -> dict[str, Any]:
+    error = event.get("error")
+    if isinstance(error, dict):
+        return error
+    response = event.get("response")
+    if isinstance(response, dict):
+        nested = response.get("error")
+        if isinstance(nested, dict):
+            return nested
+    return {}
+
+
+def _message_excerpt(
+    event: dict[str, Any],
+    error: dict[str, Any],
+    response: dict[str, Any],
+) -> str | None:
+    for candidate in (
+        error.get("message"),
+        event.get("message"),
+        response.get("message"),
+    ):
+        excerpt = _clip_text(candidate, _FAILURE_MESSAGE_LIMIT)
+        if excerpt:
+            return excerpt
+    return None
+
+
+def _payload_keys(event: dict[str, Any]) -> list[str]:
+    return sorted(str(key) for key in event.keys())[:_FAILURE_KEYS_LIMIT]
+
+
+def _clean_scalar(value: Any) -> str | None:
+    if value is None:
+        return None
+    return _clip_text(value, _FAILURE_MESSAGE_LIMIT)
+
+
+def _clip_text(value: Any, limit: int) -> str | None:
+    if value is None:
+        return None
+    text = " ".join(str(value).split())
+    if not text:
+        return None
+    return text[:limit]
 
 
 def _friendly_error(status_code: int, raw: str) -> str:

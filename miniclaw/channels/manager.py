@@ -42,6 +42,8 @@ class ChannelManager:
 
         for name, cls in discover_all().items():
             section = getattr(self.config.channels, name, None)
+            if section is None and name == "web":
+                section = cls.default_config()
             if section is None:
                 continue
             enabled = (

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+from contextlib import suppress
 import hmac
 import secrets
 import uuid
@@ -109,34 +111,42 @@ async def mini_websocket(websocket: WebSocket):
 
     await websocket.accept(subprotocol=selected_subprotocol)
     session_id = websocket.query_params.get("session_id", "").strip() or str(uuid.uuid4())
+    send_lock = asyncio.Lock()
+
+    async def send_event(event: dict[str, Any]) -> None:
+        async with send_lock:
+            await _send_ws_event(websocket, session_id, event)
+
+    delivery_task = asyncio.create_task(
+        context.chat_runtime.forward_background_events(
+            session_id=session_id,
+            send_event=send_event,
+        )
+    )
 
     try:
         while True:
             payload = await websocket.receive_json()
             if not isinstance(payload, dict):
-                await _send_ws_event(
-                    websocket,
-                    session_id,
+                await send_event(
                     {
                         "type": "error",
                         "payload": {"message": "Invalid WebSocket payload."},
-                    },
+                    }
                 )
                 continue
 
             message_type = str(payload.get("type") or "")
             if message_type == "ping":
-                await _send_ws_event(websocket, session_id, {"type": "pong"})
+                await send_event({"type": "pong"})
                 continue
 
             if message_type != "message.send":
-                await _send_ws_event(
-                    websocket,
-                    session_id,
+                await send_event(
                     {
                         "type": "error",
                         "payload": {"message": f"Unsupported message type: {message_type or 'unknown'}"},
-                    },
+                    }
                 )
                 continue
 
@@ -146,22 +156,24 @@ async def mini_websocket(websocket: WebSocket):
                 content = str(message_payload.get("content") or "").strip()
 
             if not content:
-                await _send_ws_event(
-                    websocket,
-                    session_id,
+                await send_event(
                     {
                         "type": "error",
                         "payload": {"message": "Message content is required."},
-                    },
+                    }
                 )
                 continue
 
             await context.chat_runtime.stream_message(
                 session_id=session_id,
                 content=content,
-                send_event=lambda event: _send_ws_event(websocket, session_id, event),
+                send_event=send_event,
             )
     except WebSocketDisconnect:
         return
     except RuntimeError:
         return
+    finally:
+        delivery_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await delivery_task

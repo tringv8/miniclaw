@@ -491,6 +491,74 @@ def _migrate_cron_store(config: "Config") -> None:
         shutil.move(str(legacy_path), str(new_path))
 
 
+def _latest_session_chat_id(session_manager: Any, channel: str) -> str | None:
+    """Return the most recently updated session target for one channel."""
+    for item in session_manager.list_sessions():
+        key = item.get("key") or ""
+        if ":" not in key:
+            continue
+        session_channel, chat_id = key.split(":", 1)
+        if session_channel == channel and chat_id:
+            return chat_id
+    return None
+
+
+def _resolve_cron_execution_context(job: Any, *, session_manager: Any) -> tuple[str, str]:
+    """Resolve the chat context used while executing one cron turn."""
+    channel = job.payload.channel or "cli"
+    chat_id = job.payload.to or "direct"
+
+    # Web sessions are ephemeral; prefer the latest live session over the
+    # originally stored session id so cron replies land in the current tab.
+    if channel == "web":
+        chat_id = _latest_session_chat_id(session_manager, "web") or chat_id
+
+    return channel, chat_id
+
+
+def _resolve_cron_delivery_targets(
+    job: Any,
+    *,
+    enabled_channels: set[str],
+    session_manager: Any,
+) -> list[tuple[str, str]]:
+    """Resolve the outbound targets for one cron response."""
+    targets: list[tuple[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+
+    def _add(channel: str | None, chat_id: str | None) -> None:
+        if not channel or not chat_id or channel not in enabled_channels:
+            return
+        target = (channel, chat_id)
+        if target in seen:
+            return
+        seen.add(target)
+        targets.append(target)
+
+    payload_channel = job.payload.channel or ""
+    payload_chat_id = job.payload.to or ""
+
+    execution_channel, execution_chat_id = _resolve_cron_execution_context(
+        job, session_manager=session_manager
+    )
+    _add(execution_channel, execution_chat_id)
+
+    # Cron jobs created from web/telegram should fan out across both surfaces
+    # when they are enabled so users can keep either client open.
+    if payload_channel in {"web", "telegram"}:
+        if payload_channel != "web":
+            _add("web", _latest_session_chat_id(session_manager, "web"))
+        if payload_channel != "telegram":
+            _add("telegram", _latest_session_chat_id(session_manager, "telegram"))
+
+    # Preserve the original non-web chat when the execution context had to move
+    # to a newer web session.
+    if payload_channel and payload_channel != "web":
+        _add(payload_channel, payload_chat_id)
+
+    return targets
+
+
 # ============================================================================
 # Gateway / Server
 # ============================================================================
@@ -564,6 +632,9 @@ def gateway(
             f"Task '{job.name}' has been triggered.\n"
             f"Scheduled instruction: {job.payload.message}"
         )
+        exec_channel, exec_chat_id = _resolve_cron_execution_context(
+            job, session_manager=session_manager
+        )
 
         cron_tool = agent.tools.get("cron")
         cron_token = None
@@ -573,8 +644,8 @@ def gateway(
             resp = await agent.process_direct(
                 reminder_note,
                 session_key=f"cron:{job.id}",
-                channel=job.payload.channel or "cli",
-                chat_id=job.payload.to or "direct",
+                channel=exec_channel,
+                chat_id=exec_chat_id,
             )
         finally:
             if isinstance(cron_tool, CronTool) and cron_token is not None:
@@ -586,17 +657,23 @@ def gateway(
         if isinstance(message_tool, MessageTool) and message_tool._sent_in_turn:
             return response
 
-        if job.payload.deliver and job.payload.to and response:
+        targets = _resolve_cron_delivery_targets(
+            job,
+            enabled_channels=set(channels.enabled_channels),
+            session_manager=session_manager,
+        )
+        if job.payload.deliver and response and targets:
             should_notify = await evaluate_response(
                 response, job.payload.message, provider, agent.model,
             )
             if should_notify:
                 from miniclaw.bus.events import OutboundMessage
-                await bus.publish_outbound(OutboundMessage(
-                    channel=job.payload.channel or "cli",
-                    chat_id=job.payload.to,
-                    content=response,
-                ))
+                for channel, chat_id in targets:
+                    await bus.publish_outbound(OutboundMessage(
+                        channel=channel,
+                        chat_id=chat_id,
+                        content=response,
+                    ))
         return response
     cron.on_job = on_cron_job
 

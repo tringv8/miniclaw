@@ -13,6 +13,7 @@ from miniclaw.config.schema import Config
 from miniclaw.cron.service import CronService
 from miniclaw.session.manager import SessionManager
 from miniclaw.utils.helpers import sync_workspace_templates
+from miniclaw.web_events import WebEventMailbox, deliver_pending_events
 
 from backend.utils.config_store import load_raw_config
 
@@ -87,11 +88,17 @@ class WebChatRuntime:
     def __init__(self, config_path: Path) -> None:
         self.config_path = config_path
         self._session_locks: dict[str, asyncio.Lock] = {}
+        self._mailbox: WebEventMailbox | None = None
 
     def _load_config(self) -> Config:
         set_config_path(self.config_path)
         payload = load_raw_config(self.config_path)
         return Config.model_validate(payload)
+
+    def _get_mailbox(self) -> WebEventMailbox:
+        if self._mailbox is None:
+            self._mailbox = WebEventMailbox(self._load_config().workspace_path)
+        return self._mailbox
 
     def _build_agent(self) -> AgentLoop:
         config = self._load_config()
@@ -207,3 +214,15 @@ class WebChatRuntime:
                 if agent is not None:
                     await agent.close_mcp()
                 await send_event({"type": "typing.stop", "timestamp": _timestamp_ms()})
+
+    async def forward_background_events(
+        self,
+        *,
+        session_id: str,
+        send_event: ChatEventSender,
+        idle_poll_seconds: float = 0.5,
+    ) -> None:
+        mailbox = self._get_mailbox()
+        while True:
+            delivered = await deliver_pending_events(mailbox, session_id, send_event)
+            await asyncio.sleep(0.1 if delivered else idle_poll_seconds)
