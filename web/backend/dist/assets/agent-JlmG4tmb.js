@@ -1,1 +1,0 @@
-import{n as e}from"./shim-BABylzsG.js";import{H as t,U as n,V as r}from"./index-nzJwKAPI.js";var i=e();function a(){return r({select:e=>e.location.pathname})===`/agent`?(0,i.jsx)(n,{to:`/agent/skills`}):(0,i.jsx)(t,{})}export{a as component};
