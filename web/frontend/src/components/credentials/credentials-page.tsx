@@ -1,7 +1,5 @@
 import { PageHeader } from "@/components/page-header"
 
-import { AnthropicCredentialCard } from "./anthropic-credential-card"
-import { AntigravityCredentialCard } from "./antigravity-credential-card"
 import { DeviceCodeSheet } from "./device-code-sheet"
 import { LogoutConfirmDialog } from "./logout-confirm-dialog"
 import { OpenAICredentialCard } from "./openai-credential-card"
@@ -14,16 +12,12 @@ export function CredentialsPage() {
     activeAction,
     flowHint,
     openAIToken,
-    anthropicToken,
     openaiStatus,
-    anthropicStatus,
-    antigravityStatus,
     logoutDialogOpen,
     logoutProviderLabel,
     deviceSheetOpen,
     deviceFlow,
     setOpenAIToken,
-    setAnthropicToken,
     startBrowserOAuth,
     startOpenAIDeviceCode,
     stopLoading,
@@ -54,7 +48,7 @@ export function CredentialsPage() {
         {loading ? (
           <div className="text-muted-foreground py-8 text-sm">Loading...</div>
         ) : (
-          <div className="grid grid-cols-1 gap-4 py-5 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 py-5 xl:grid-cols-1">
             <OpenAICredentialCard
               status={openaiStatus}
               activeAction={activeAction}
@@ -65,26 +59,6 @@ export function CredentialsPage() {
               onStopLoading={stopLoading}
               onSaveToken={() => void saveToken("openai", openAIToken)}
               onAskLogout={() => askLogout("openai")}
-            />
-
-            <AnthropicCredentialCard
-              status={anthropicStatus}
-              activeAction={activeAction}
-              token={anthropicToken}
-              onTokenChange={setAnthropicToken}
-              onStopLoading={stopLoading}
-              onSaveToken={() => void saveToken("anthropic", anthropicToken)}
-              onAskLogout={() => askLogout("anthropic")}
-            />
-
-            <AntigravityCredentialCard
-              status={antigravityStatus}
-              activeAction={activeAction}
-              onStopLoading={stopLoading}
-              onStartBrowserOAuth={() =>
-                void startBrowserOAuth("google-antigravity")
-              }
-              onAskLogout={() => askLogout("google-antigravity")}
             />
           </div>
         )}

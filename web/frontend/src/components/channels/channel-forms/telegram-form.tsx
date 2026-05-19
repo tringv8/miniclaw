@@ -75,16 +75,7 @@ export function TelegramForm({
           placeholder="https://api.telegram.org"
         />
       </Field>
-      <Field
-        label={t("channels.field.proxy")}
-        hint={t("channels.form.desc.proxy")}
-      >
-        <Input
-          value={asString(config.proxy)}
-          onChange={(e) => onChange("proxy", e.target.value)}
-          placeholder="http://127.0.0.1:7890"
-        />
-      </Field>
+
       <Field
         label={t("channels.field.allowFrom")}
         hint={t("channels.form.desc.allowFrom")}
